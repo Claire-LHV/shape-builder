@@ -1,16 +1,18 @@
 
  final int N_PARTITIONS = 10;
- final PVector[] grid = new PVector[int(sq(N_PARTITIONS+1))];
+ final PVector[] grid = new PVector[int(sq(N_PARTITIONS+1))]; //sq(N_PARTITIONS+1) = the total number of grid points appear on screen, including one on the edges
  ArrayList<PVector> dots = new ArrayList<PVector>();
  int pressed_node_index;
  
  void setup(){
    size(600,360);
    background(255);
+   // the loop below assigns the cordinates of the grid points to the grid array
+   // order: column by column
    for(int i=0; i <= N_PARTITIONS; i++){
      for(int j=0; j <= N_PARTITIONS; j++){
       grid[i+j*(N_PARTITIONS+1)] = new PVector(i*width/N_PARTITIONS, j*height/N_PARTITIONS,0);
-   } } //an array for the Grid Points
+   } } 
    pressed_node_index = -1;
  }
  
@@ -28,10 +30,11 @@ void mouseReleased(){
   if(pressed_node_index != -1){
     dots.set(pressed_node_index, grid[index_of_min(mouseX,mouseY)]);
     pressed_node_index =-1;
+    //The grid points need resetting due to mutable problem that changes the coordinates of grid[i] after the first time releasing a node
     for(int i=0; i <= N_PARTITIONS; i++){
      for(int j=0; j <= N_PARTITIONS; j++){
       grid[i+j*(N_PARTITIONS+1)] = new PVector(i*width/N_PARTITIONS, j*height/N_PARTITIONS,0);
-   } } //The grid points need resetting due to a bug that changes the coordinates of grid[i] after the first time releasing a node
+   } } 
   }
 }
 
@@ -42,20 +45,18 @@ void draw(){
   //Drawing the grid
   for(int i =0; i <=width; i+=width/N_PARTITIONS) line(i,0,i,height);
   for(int i =0; i <=height; i+=height/N_PARTITIONS) line( 0,i,width,i);
-
-  fill(0);
-  if( dots.size() >1){
+  if(dots.size()>=1){
+    strokeWeight(3);
+    beginShape();
     for(int i=0; i<dots.size();i++){
+      fill(0);
       circle(dots.get(i).x,dots.get(i).y,10);
-      strokeWeight(3);
-    if(i != dots.size()-1 ){
-     line(dots.get(i).x, dots.get(i).y, dots.get(i+1).x, dots.get(i+1).y);
+      noFill();
+      vertex(dots.get(i).x, dots.get(i).y);
     }
-    else
-      line(dots.get(i).x, dots.get(i).y, dots.get(0).x, dots.get(0).y);
-    }
+    vertex(dots.get(0).x, dots.get(0).y);
+    endShape();
   }
-    else if( dots.size() == 1){circle(dots.get(0).x,dots.get(0).y,10);}
   if(pressed_node_index != -1){
    dots.get(pressed_node_index).x=mouseX;
    dots.get(pressed_node_index).y=mouseY;
@@ -65,7 +66,7 @@ void draw(){
 
 
 
-//Function returns the index of the point on the gid whose distance from the mouse clicked position is min
+//index_of_min returns the index of the point on the gid whose distance from the mouse clicked position is min
 int index_of_min(int x, int y){ //(x,y) mouse clicked position
 
  float[] distance = new float[int(sq(N_PARTITIONS+1))]; //an array to store the distances from where the mouse is clicked to every point on the grid
